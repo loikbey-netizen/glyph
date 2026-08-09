@@ -28,6 +28,7 @@ interface UseCanvasEditingOptions {
   commit: (next: CanvasData) => void;
   viewport: Viewport;
   stageRef: RefObject<HTMLDivElement | null>;
+  allowDelete?: boolean;
 }
 
 /**
@@ -35,7 +36,13 @@ interface UseCanvasEditingOptions {
  * that act on it: create, delete, recolour, and commit inline text. Pointer
  * gestures live in `useCanvasGestures`.
  */
-export function useCanvasEditing({ data, commit, viewport, stageRef }: UseCanvasEditingOptions) {
+export function useCanvasEditing({
+  data,
+  commit,
+  viewport,
+  stageRef,
+  allowDelete = true,
+}: UseCanvasEditingOptions) {
   const [selection, setSelection] = useState<ReadonlySet<string>>(new Set());
   const [selectedEdge, setSelectedEdge] = useState<string | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -100,16 +107,19 @@ export function useCanvasEditing({ data, commit, viewport, stageRef }: UseCanvas
   };
 
   const deleteNode = (id: string) => {
+    if (!allowDelete) return;
     commit(removeNodes(dataRef.current, new Set([id])));
     setSelection(new Set());
   };
 
   const deleteEdge = (id: string) => {
+    if (!allowDelete) return;
     commit(removeEdge(dataRef.current, id));
     setSelectedEdge(null);
   };
 
   const deleteSelection = () => {
+    if (!allowDelete) return;
     if (selectedEdge) {
       deleteEdge(selectedEdge);
       /* v8 ignore start -- defensive: toolbar only renders with an edge or node selected */
@@ -147,6 +157,7 @@ export function useCanvasEditing({ data, commit, viewport, stageRef }: UseCanvas
   // app's undo/redo shortcut) so the stage needs no tabIndex; ignored while a
   // text field is focused.
   useEffect(() => {
+    if (!allowDelete) return;
     const handleKey = (e: KeyboardEvent) => {
       if (e.key !== "Delete" && e.key !== "Backspace") return;
       if (editingId) return;
@@ -166,7 +177,7 @@ export function useCanvasEditing({ data, commit, viewport, stageRef }: UseCanvas
     };
     document.addEventListener("keydown", handleKey);
     return () => document.removeEventListener("keydown", handleKey);
-  }, [selection, selectedEdge, editingId, commit]);
+  }, [selection, selectedEdge, editingId, commit, allowDelete]);
 
   return {
     dataRef,

@@ -13,12 +13,12 @@ export type CanvasMenuTarget =
   | { kind: "edge"; id: string };
 
 export interface CanvasMenuActions {
-  createNode: (type: "text" | "group" | "link") => void;
-  startEdit: (id: string) => void;
-  editEdgeLabel: (id: string) => void;
-  setNodeColor: (id: string, color: string | undefined) => void;
-  deleteNode: (id: string) => void;
-  deleteEdge: (id: string) => void;
+  createNode?: (type: "text" | "group" | "link") => void;
+  startEdit?: (id: string) => void;
+  editEdgeLabel?: (id: string) => void;
+  setNodeColor?: (id: string, color: string | undefined) => void;
+  deleteNode?: (id: string) => void;
+  deleteEdge?: (id: string) => void;
 }
 
 /** i18n keys for the spec's preset colour indices "1"–"6". */
@@ -43,68 +43,81 @@ export function buildCanvasMenuItems(
   t: TFunction<"common">,
 ): ContextMenuItem[] {
   if (target.kind === "stage") {
+    const createNode = actions.createNode;
+    if (!createNode) return [];
     return [
       {
         kind: "action",
         label: t("canvasMenu.newCard"),
-        onSelect: () => actions.createNode("text"),
+        onSelect: () => createNode("text"),
       },
       {
         kind: "action",
         label: t("canvasMenu.newGroup"),
-        onSelect: () => actions.createNode("group"),
+        onSelect: () => createNode("group"),
       },
       {
         kind: "action",
         label: t("canvasMenu.newLink"),
-        onSelect: () => actions.createNode("link"),
+        onSelect: () => createNode("link"),
       },
     ];
   }
 
   if (target.kind === "edge") {
-    return [
-      {
+    const items: ContextMenuItem[] = [];
+    const editEdgeLabel = actions.editEdgeLabel;
+    if (editEdgeLabel) {
+      items.push({
         kind: "action",
         label: t("canvasMenu.editEdgeLabel"),
-        onSelect: () => actions.editEdgeLabel(target.id),
-      },
-      { kind: "separator" },
-      {
+        onSelect: () => editEdgeLabel(target.id),
+      });
+    }
+    const deleteEdge = actions.deleteEdge;
+    if (deleteEdge) {
+      if (items.length > 0) items.push({ kind: "separator" });
+      items.push({
         kind: "action",
         label: t("canvasMenu.deleteConnection"),
         danger: true,
-        onSelect: () => actions.deleteEdge(target.id),
-      },
-    ];
+        onSelect: () => deleteEdge(target.id),
+      });
+    }
+    return items;
   }
 
   const { node } = target;
   const items: ContextMenuItem[] = [];
-  if (node.type !== "file") {
+  const startEdit = actions.startEdit;
+  if (node.type !== "file" && startEdit) {
     items.push({
       kind: "action",
       label: t(EDIT_LABEL_KEYS[node.type]),
-      onSelect: () => actions.startEdit(node.id),
+      onSelect: () => startEdit(node.id),
     });
   }
-  const swatches: ContextMenuActionItem[] = PRESET_COLORS.map((c) => ({
-    kind: "action",
-    label: t(PRESET_LABEL_KEYS[c]),
-    onSelect: () => actions.setNodeColor(node.id, c),
-  }));
-  swatches.push({
-    kind: "action",
-    label: t("canvasMenu.clearColor"),
-    onSelect: () => actions.setNodeColor(node.id, undefined),
-  });
-  items.push({ kind: "submenu", label: t("canvasMenu.color"), items: swatches });
-  items.push({ kind: "separator" });
-  items.push({
-    kind: "action",
-    label: t("canvasMenu.delete"),
-    danger: true,
-    onSelect: () => actions.deleteNode(node.id),
-  });
+  if (actions.setNodeColor) {
+    const swatches: ContextMenuActionItem[] = PRESET_COLORS.map((c) => ({
+      kind: "action",
+      label: t(PRESET_LABEL_KEYS[c]),
+      onSelect: () => actions.setNodeColor?.(node.id, c),
+    }));
+    swatches.push({
+      kind: "action",
+      label: t("canvasMenu.clearColor"),
+      onSelect: () => actions.setNodeColor?.(node.id, undefined),
+    });
+    items.push({ kind: "submenu", label: t("canvasMenu.color"), items: swatches });
+  }
+  if (actions.deleteNode) {
+    if (items.length > 0) items.push({ kind: "separator" });
+    items.push({
+      kind: "action",
+      label: t("canvasMenu.delete"),
+      danger: true,
+      onSelect: () => actions.deleteNode?.(node.id),
+    });
+  }
   return items;
 }

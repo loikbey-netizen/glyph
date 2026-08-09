@@ -1,4 +1,5 @@
 mod canvas;
+mod cards_metadata;
 mod cli;
 mod commands;
 mod d2;
@@ -234,6 +235,8 @@ pub fn run() {
             commands::file::copy_file,
             commands::file::get_file_metadata,
             commands::file::get_initial_file,
+            cards_metadata::read_cards_metadata,
+            cards_metadata::write_cards_metadata,
             #[cfg(desktop)]
             commands::file::print_document,
             #[cfg(desktop)]

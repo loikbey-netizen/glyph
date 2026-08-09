@@ -130,17 +130,17 @@
     }
   },
   "updates": {
-    "title": "更新",
+    "title": "Glyph 上游更新",
     "check": {
       "label": "检查更新",
-      "description": "启动时检查是否有更新版本，有可用更新时显示横幅。仅比较已安装的版本；不会发送任何文件或个人数据。"
+      "description": "仅手动检查。Glyph 版本在集成到 Source Mindmap 前会经过审查和测试；此按钮不会安装任何内容。"
     },
     "checking": "正在检查…",
     "checkNow": "立即检查",
-    "current": "您使用的是最新版本。",
+    "current": "Source Mindmap 基于最新的 Glyph 版本。",
     "error": "无法检查更新。请稍后重试。",
-    "available": "版本 {{version}} 可用。",
-    "download": "下载"
+    "available": "Glyph {{version}} 可供手动审查。",
+    "download": "查看版本"
   },
   "editor": {
     "title": "编辑器",

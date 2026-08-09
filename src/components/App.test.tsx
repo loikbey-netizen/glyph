@@ -383,13 +383,18 @@ describe("App", () => {
       listeners["menu-find"]?.({ payload: undefined });
     });
 
-    // menu-toggle-edit cycles view → edit → split → view. Each step renders a
-    // different mock (editor, split, viewer), confirming the full nextEditorMode
-    // cycle runs through setTabMode.
+    // menu-toggle-edit cycles view → edit → cards → split → view. Each step
+    // renders a distinct surface, confirming the full nextEditorMode cycle runs
+    // through setTabMode.
     await act(async () => {
       listeners["menu-toggle-edit"]?.({ payload: undefined });
     });
     expect(await findByTestId("lazy-editor")).toBeInTheDocument();
+
+    await act(async () => {
+      listeners["menu-toggle-edit"]?.({ payload: undefined });
+    });
+    expect(await findByTestId("markdown-cards-pane")).toBeInTheDocument();
 
     await act(async () => {
       listeners["menu-toggle-edit"]?.({ payload: undefined });

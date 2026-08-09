@@ -36,13 +36,39 @@ interface CanvasEditorProps {
   onChange: (serialized: string) => void;
   /** Keeps the pan/zoom transform across view/edit mode switches. */
   viewportKey?: string;
+  capabilities?: Partial<CanvasEditorCapabilities>;
 }
+
+export interface CanvasEditorCapabilities {
+  create: boolean;
+  delete: boolean;
+  connect: boolean;
+  recolor: boolean;
+  editText: boolean;
+  resize: boolean;
+}
+
+const DEFAULT_CAPABILITIES: CanvasEditorCapabilities = {
+  create: true,
+  delete: true,
+  connect: true,
+  recolor: true,
+  editText: true,
+  resize: true,
+};
 
 // Editable canvas board: select, move, resize, recolour, create/delete nodes
 // and edges, and edit text inline. The pointer-gesture state machine lives in
 // useCanvasGestures and the selection plus discrete operations in
 // useCanvasEditing; this component wires them to the stage and the toolbars.
-export function CanvasEditor({ content, filePath, onChange, viewportKey }: CanvasEditorProps) {
+export function CanvasEditor({
+  content,
+  filePath,
+  onChange,
+  viewportKey,
+  capabilities: requestedCapabilities,
+}: CanvasEditorProps) {
+  const capabilities = { ...DEFAULT_CAPABILITIES, ...requestedCapabilities };
   const { t } = useTranslation("common");
   const { viewport, restored, stageRef, panBy, zoomBy, fitTo, toStagePoint } =
     useCanvasViewport(viewportKey);
@@ -68,7 +94,7 @@ export function CanvasEditor({ content, filePath, onChange, viewportKey }: Canva
     setNodeColor,
     commitText,
     commitEdgeLabel,
-  } = useCanvasEditing({ data, commit, viewport, stageRef });
+  } = useCanvasEditing({ data, commit, viewport, stageRef, allowDelete: capabilities.delete });
 
   const worldAt = (e: { clientX: number; clientY: number }): Point =>
     screenToWorld(viewport, toStagePoint(e.clientX, e.clientY));
@@ -83,6 +109,7 @@ export function CanvasEditor({ content, filePath, onChange, viewportKey }: Canva
     selection,
     onStageDown: clearSelection,
     onConnect: (fromId, fromSide, target) => {
+      if (!capabilities.connect) return;
       const from = dataRef.current.nodes.find((n) => n.id === fromId);
       const toSide = from
         ? inferSide(target, from)
@@ -108,14 +135,15 @@ export function CanvasEditor({ content, filePath, onChange, viewportKey }: Canva
     e.stopPropagation();
     const at = worldAt(e);
     const actions: CanvasMenuActions = {
-      createNode: (type) => addNodeAt(type, at),
-      startEdit: setEditingId,
-      editEdgeLabel: setEditingEdgeId,
-      setNodeColor,
-      deleteNode,
-      deleteEdge,
+      createNode: capabilities.create ? (type) => addNodeAt(type, at) : undefined,
+      startEdit: capabilities.editText ? setEditingId : undefined,
+      editEdgeLabel: capabilities.editText ? setEditingEdgeId : undefined,
+      setNodeColor: capabilities.recolor ? setNodeColor : undefined,
+      deleteNode: capabilities.delete ? deleteNode : undefined,
+      deleteEdge: capabilities.delete ? deleteEdge : undefined,
     };
-    setMenu({ x: e.clientX, y: e.clientY, items: buildCanvasMenuItems(target, actions, t) });
+    const items = buildCanvasMenuItems(target, actions, t);
+    if (items.length > 0) setMenu({ x: e.clientX, y: e.clientY, items });
   };
 
   const boundingBox = useMemo(() => nodesBoundingBox(data.nodes), [data.nodes]);
@@ -145,20 +173,29 @@ export function CanvasEditor({ content, filePath, onChange, viewportKey }: Canva
     onResizeStart: (e: ReactPointerEvent) => gestures.startResize(node.id, e),
     onConnectStart: (side: NodeSide, e: ReactPointerEvent) =>
       gestures.startConnect(node.id, side, e),
-    onStartEdit: () => setEditingId(node.id),
+    onStartEdit: () => capabilities.editText && setEditingId(node.id),
     onTextCommit: (v: string) => commitText(node.id, v),
     onEditCancel: () => setEditingId(null),
     onContextMenu: (e: ReactMouseEvent) => {
+      if (!capabilities.create && !capabilities.delete && !capabilities.recolor) {
+        e.preventDefault();
+        e.stopPropagation();
+        return;
+      }
       selectNode(node.id, false);
       openMenu(e, { kind: "node", node });
     },
     onTaskToggle: (line: number) => {
+      if (!capabilities.editText) return;
       const current = dataRef.current.nodes.find((n) => n.id === node.id);
       /* v8 ignore start -- defensive: checkboxes only render inside text cards */
       if (current?.type !== "text") return;
       /* v8 ignore stop */
       commit(updateTextNode(dataRef.current, node.id, toggleTaskAtLine(current.text, line)));
     },
+    allowConnect: capabilities.connect,
+    allowResize: capabilities.resize,
+    allowEdit: capabilities.editText,
   });
 
   return (
@@ -168,8 +205,8 @@ export function CanvasEditor({ content, filePath, onChange, viewportKey }: Canva
         ref={stageRef}
         className="glyph-canvas-stage"
         {...gestures.stageHandlers}
-        onDoubleClick={(e) => addNodeAt("text", worldAt(e))}
-        onContextMenu={(e) => openMenu(e, { kind: "stage" })}
+        onDoubleClick={capabilities.create ? (e) => addNodeAt("text", worldAt(e)) : undefined}
+        onContextMenu={capabilities.create ? (e) => openMenu(e, { kind: "stage" }) : undefined}
       >
         <div
           className="glyph-canvas-world"
@@ -192,10 +229,12 @@ export function CanvasEditor({ content, filePath, onChange, viewportKey }: Canva
             selectedId={selectedEdge}
             onSelectEdge={selectEdge}
             onEdgeContextMenu={(id, e) => {
+              if (!capabilities.delete && !capabilities.recolor) return;
               selectEdge(id);
               openMenu(e, { kind: "edge", id });
             }}
             onEdgeDoubleClick={(id) => {
+              if (!capabilities.editText) return;
               selectEdge(id);
               setEditingEdgeId(id);
             }}
@@ -234,11 +273,11 @@ export function CanvasEditor({ content, filePath, onChange, viewportKey }: Canva
         </div>
       </div>
 
-      {(selection.size > 0 || selectedEdge) && (
+      {(capabilities.delete || capabilities.recolor) && (selection.size > 0 || selectedEdge) && (
         <CanvasSelectionToolbar
           count={selection.size}
-          onSetColor={selectedEdge ? () => undefined : recolor}
-          onDelete={deleteSelection}
+          onSetColor={capabilities.recolor && !selectedEdge ? recolor : undefined}
+          onDelete={capabilities.delete ? deleteSelection : undefined}
         />
       )}
 
@@ -247,7 +286,7 @@ export function CanvasEditor({ content, filePath, onChange, viewportKey }: Canva
         onZoomIn={() => zoomBy(1.2)}
         onZoomOut={() => zoomBy(1 / 1.2)}
         onFit={() => fitTo(boundingBox)}
-        onAdd={addNodeAt}
+        onAdd={capabilities.create ? addNodeAt : undefined}
       />
 
       <ContextMenu menu={menu} onClose={() => setMenu(null)} />

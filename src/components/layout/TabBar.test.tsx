@@ -295,6 +295,9 @@ describe("TabBar", () => {
     fireEvent.click(screen.getByRole("button", { name: "Edit mode" }));
     expect(setTabMode).toHaveBeenCalledWith("tab-0", "edit");
 
+    fireEvent.click(screen.getByRole("button", { name: "Cards mode" }));
+    expect(setTabMode).toHaveBeenCalledWith("tab-0", "cards");
+
     fireEvent.click(screen.getByRole("button", { name: "Split mode" }));
     expect(setTabMode).toHaveBeenCalledWith("tab-0", "split");
   });
@@ -314,6 +317,7 @@ describe("TabBar", () => {
   it("keeps the Split button for markdown files", () => {
     renderTabBar({ tabs: makeTabs(1), activeTabId: "tab-0" });
     expect(screen.getByLabelText("Split mode")).toBeInTheDocument();
+    expect(screen.getByLabelText("Cards mode")).toBeInTheDocument();
   });
 
   it("hides mode toggle when the active tab is a graph tab", () => {

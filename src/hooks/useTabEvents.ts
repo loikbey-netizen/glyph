@@ -1,7 +1,7 @@
 import { type Dispatch, type RefObject, type SetStateAction, useEffect } from "react";
 import { loadFileContent } from "@/lib/documentContent";
 import { isImageFile } from "@/lib/imageExtensions";
-import { EDITOR_MODE } from "@/lib/settings";
+import { isTextEditorMode } from "@/lib/settings";
 import { activeFileOf, type TabsState, type Workspace } from "@/lib/tabs";
 import { subscribe } from "@/lib/tauriEvent";
 
@@ -67,7 +67,7 @@ export function useTabEvents({
           .find((candidate) => candidate?.path === changedPath);
         if (!file) return;
         // Skip reload if the file is in edit mode with unsaved changes
-        if (file.mode !== EDITOR_MODE.view && file.dirty) return;
+        if (isTextEditorMode(file.mode) && file.dirty) return;
         // Skip if this file-changed was triggered by our own auto-save.
         if (isRecentSelfSave(changedPath)) return;
         try {

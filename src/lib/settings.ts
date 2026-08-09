@@ -56,26 +56,41 @@ export const TAGS_HEIGHT_MIN = 56;
 export const EDITOR_MODE = {
   view: "view",
   edit: "edit",
+  cards: "cards",
   split: "split",
 } as const;
 
 export type EditorMode = (typeof EDITOR_MODE)[keyof typeof EDITOR_MODE];
 
-// Order the per-tab mode toggle cycles through: view → edit → split → view.
+// Order the per-tab mode toggle cycles through. Cards is a derived projection
+// of the committed Markdown, not another text edit buffer.
 const EDITOR_MODE_CYCLE: readonly EditorMode[] = [
   EDITOR_MODE.view,
   EDITOR_MODE.edit,
+  EDITOR_MODE.cards,
   EDITOR_MODE.split,
 ];
 
+/** Modes backed by the mutable full-document text buffer. */
+export function isTextEditorMode(mode: EditorMode): boolean {
+  return mode === EDITOR_MODE.edit || mode === EDITOR_MODE.split;
+}
+
 /**
- * The next mode when cycling the editor toggle (wraps view → edit → split →
- * view). An undefined/unknown current mode is treated as `view`, so the cycle
- * starts at `edit`. On a narrow viewport `canSplit` is false, so the cycle
- * skips split (view → edit → view).
+ * The next mode when cycling the editor toggle (wraps view → edit → cards →
+ * split → view). An undefined/unknown current mode is treated as `view`, so the
+ * cycle starts at `edit`. On a narrow viewport `canSplit` is false, so the cycle
+ * skips split (view → edit → cards → view).
  */
-export function nextEditorMode(current: EditorMode | undefined, canSplit = true): EditorMode {
-  const cycle = canSplit ? EDITOR_MODE_CYCLE : [EDITOR_MODE.view, EDITOR_MODE.edit];
+export function nextEditorMode(
+  current: EditorMode | undefined,
+  canSplit = true,
+  canShowCards = true,
+): EditorMode {
+  const cycle = EDITOR_MODE_CYCLE.filter(
+    (mode) =>
+      (canSplit || mode !== EDITOR_MODE.split) && (canShowCards || mode !== EDITOR_MODE.cards),
+  );
   const idx = current ? cycle.indexOf(current) : 0;
   // indexOf is -1 when the stored mode is split but split is no longer in the
   // cycle; treat that as position 0 so the next tap lands on edit.
@@ -245,7 +260,9 @@ export const DEFAULT_SETTINGS: Settings = {
     autoSave: true,
     reopenLastFile: false,
     confirmExternalLinks: true,
-    checkForUpdates: true,
+    // Source Mindmap reviews Glyph upstream releases manually. Never check on
+    // launch: an upstream binary must not bypass the fork's regression gates.
+    checkForUpdates: false,
     recentFiles: [],
     openTabs: [],
     activeTabPath: "",

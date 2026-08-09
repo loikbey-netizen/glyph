@@ -7,6 +7,7 @@ import type { MenuEventHandlers } from "@/hooks/useMenuEvents";
 import { useSettings } from "@/hooks/useSettings";
 import type { ShellControllers } from "@/hooks/useShellControllers";
 import { openDocumentation, openReleaseNotes, openReportIssue } from "@/lib/helpLinks";
+import { isMarkdownFile } from "@/lib/markdownExtensions";
 import { nextEditorMode } from "@/lib/settings";
 
 interface UseMenuHandlersOptions {
@@ -48,15 +49,17 @@ export function useMenuHandlers({
     if (activeTabId) closeTab(activeTabId);
   }, [activeTabId, closeTab]);
 
-  // Narrow (phone) viewports drop split from the cycle, so the toggle goes
-  // view → edit → view.
+  // Narrow viewports drop split; non-Markdown files also drop Cards.
   const canSplit = useCanSplit();
   const handleToggleEdit = useCallback(() => {
     if (!activeTabId) return;
     // nextEditorMode treats an undefined mode as view, so no fallback branch
     // is needed at the call site.
-    setTabMode(activeTabId, nextEditorMode(activeFile?.mode, canSplit));
-  }, [activeTabId, activeFile?.mode, setTabMode, canSplit]);
+    setTabMode(
+      activeTabId,
+      nextEditorMode(activeFile?.mode, canSplit, isMarkdownFile(activeFile?.path ?? "")),
+    );
+  }, [activeTabId, activeFile?.mode, activeFile?.path, setTabMode, canSplit]);
 
   const handleSave = useCallback(() => {
     if (activeTabId) saveDocument(activeTabId);

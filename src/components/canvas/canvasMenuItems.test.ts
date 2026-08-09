@@ -100,4 +100,13 @@ describe("buildCanvasMenuItems", () => {
     (items[2] as ContextMenuActionItem).onSelect();
     expect(actions.deleteEdge).toHaveBeenCalledWith("e1");
   });
+
+  it("omits node and edge actions whose capabilities are unavailable", () => {
+    const deleteNode = vi.fn();
+    expect(
+      labels(buildCanvasMenuItems({ kind: "node", node: textNode }, { deleteNode }, t)),
+    ).toEqual(["Delete"]);
+    expect(buildCanvasMenuItems({ kind: "edge", id: "e1" }, {}, t)).toEqual([]);
+    expect(buildCanvasMenuItems({ kind: "stage" }, {}, t)).toEqual([]);
+  });
 });

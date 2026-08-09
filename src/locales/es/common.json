@@ -61,6 +61,8 @@
     "edit": "Editar",
     "splitMode": "Modo dividido",
     "split": "Dividir",
+    "cardsMode": "Modo tarjetas",
+    "cards": "Tarjetas",
     "aiChat": "Chat de IA",
     "commandPalette": "Paleta de comandos",
     "openGraph": "Abrir grafo",
@@ -71,6 +73,12 @@
       "closeToLeft": "Cerrar las de la izquierda",
       "closeAll": "Cerrar todas"
     }
+  },
+  "cards": {
+    "empty": "No hay encabezados para mostrar como tarjetas.",
+    "editError": "No se pudo guardar la tarjeta.",
+    "concurrentEditError": "Solo se puede editar una tarjeta a la vez.",
+    "metadataWarning": "No se pudieron cargar las posiciones guardadas. Se usará el diseño predeterminado."
   },
   "updateBanner": {
     "available": "<strong>Glyph {{version}}</strong> está disponible",

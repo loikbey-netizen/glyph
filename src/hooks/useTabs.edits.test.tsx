@@ -412,6 +412,33 @@ describe("useTabs programmatic edits", () => {
     }
   });
 
+  it("reloads external Markdown changes while Cards mode is open", async () => {
+    let body = "# Original";
+    const fileChanged = captureListener("file-changed");
+    vi.mocked(invoke).mockImplementation(
+      makeInvoker({ read_file: async () => body }) as typeof invoke,
+    );
+
+    const { result } = renderHook(() => useTabs(defaultOptions({ autoReload: true })));
+    await waitFor(() => expect(result.current.initializing).toBe(false));
+    await act(async () => {
+      await result.current.openFile("/p/a.md");
+    });
+    const tabId = result.current.tabs[0].id;
+    act(() => result.current.setTabMode(tabId, "cards"));
+
+    body = "# Changed externally";
+    await act(async () => {
+      fileChanged.handler?.({ payload: "/p/a.md" });
+      await new Promise((resolve) => setTimeout(resolve, 350));
+    });
+
+    if (result.current.tabs[0].kind === "file") {
+      expect(result.current.tabs[0].file.content).toBe("# Changed externally");
+      expect(result.current.tabs[0].file.editContent).toBeNull();
+    }
+  });
+
   it("ignores a file-changed event for an image path without reading it", async () => {
     // Images are never read as text; the auto-reload guard short-circuits on an
     // image path before any read_file, even if a stray event arrives.

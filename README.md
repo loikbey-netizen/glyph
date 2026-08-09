@@ -15,6 +15,17 @@ A modern, cross-platform markdown viewer and editor with platform-native styling
 
 Built with [Tauri v2](https://v2.tauri.app), React 19, and TypeScript.
 
+## Source Mindmap fork
+
+This fork adds a source-aware Cards view for Markdown documents. Markdown remains
+the single source of truth, while visual layout metadata is stored separately.
+The product scope and implementation decisions live in
+[`docs/product-overview.md`](docs/product-overview.md).
+
+Source Mindmap installs alongside Glyph under its own Windows identity. Glyph
+upstream releases are checked manually and reviewed in a dedicated sync branch;
+the fork never installs an upstream binary automatically.
+
 ![Glyph](docs/assets/hero.png)
 
 ## Demo

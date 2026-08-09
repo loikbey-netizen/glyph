@@ -7,6 +7,7 @@ import { isImageFile } from "@/lib/imageExtensions";
 import { isNotebookFile } from "@/lib/notebookExtensions";
 import { EDITOR_MODE, effectiveEditorMode } from "@/lib/settings";
 import { CanvasPane } from "./CanvasPane";
+import { MarkdownCardsPane } from "./cards/MarkdownCardsPane";
 import { MarkdownEditor, SplitView } from "./editor/lazyEditor";
 import { GraphView } from "./graph/lazyGraph";
 import { ImageViewer } from "./markdown/ImageViewer";
@@ -118,6 +119,16 @@ export function TabContent({ searchOpen, onSearchClose }: TabContentProps) {
         file={file}
         content={editorContent}
         onOpenFile={handleOpenWikilink}
+        onChange={handleCanvasChange}
+      />
+    );
+  }
+
+  if (mode === EDITOR_MODE.cards) {
+    return (
+      <MarkdownCardsPane
+        content={file.content}
+        filePath={file.path}
         onChange={handleCanvasChange}
       />
     );

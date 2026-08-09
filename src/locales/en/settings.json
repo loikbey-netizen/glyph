@@ -130,17 +130,17 @@
     }
   },
   "updates": {
-    "title": "Updates",
+    "title": "Glyph upstream updates",
     "check": {
       "label": "Check for updates",
-      "description": "On launch, check for a newer release and show a banner when one is available. Only the installed version is compared; no files or personal data are sent."
+      "description": "Checks are manual. A Glyph release is reviewed and tested before it is integrated into Source Mindmap; this button never installs anything."
     },
     "checking": "Checking…",
     "checkNow": "Check Now",
-    "current": "You're on the latest version.",
+    "current": "Source Mindmap is based on the latest Glyph release.",
     "error": "Couldn't check for updates. Try again later.",
-    "available": "Version {{version}} is available.",
-    "download": "Download"
+    "available": "Glyph {{version}} is available for manual review.",
+    "download": "View release"
   },
   "editor": {
     "title": "Editor",

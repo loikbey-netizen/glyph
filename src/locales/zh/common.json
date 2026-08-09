@@ -61,6 +61,8 @@
     "edit": "编辑",
     "splitMode": "分屏模式",
     "split": "分屏",
+    "cardsMode": "卡片模式",
+    "cards": "卡片",
     "aiChat": "AI 聊天",
     "commandPalette": "命令面板",
     "openGraph": "打开图谱",
@@ -71,6 +73,12 @@
       "closeToLeft": "关闭左侧标签页",
       "closeAll": "关闭全部"
     }
+  },
+  "cards": {
+    "empty": "没有可显示为卡片的标题。",
+    "editError": "无法保存卡片。",
+    "concurrentEditError": "一次只能编辑一张卡片。",
+    "metadataWarning": "无法加载已保存的卡片位置，将使用默认布局。"
   },
   "updateBanner": {
     "available": "<strong>Glyph {{version}}</strong> 可用",

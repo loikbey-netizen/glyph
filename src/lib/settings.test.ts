@@ -5,6 +5,7 @@ import {
   DEFAULT_SETTINGS,
   EDITOR_MODE,
   effectiveEditorMode,
+  isTextEditorMode,
   nextEditorMode,
   SIDEBAR_WIDTH_DEFAULT,
   SIDEBAR_WIDTH_MAX,
@@ -45,6 +46,7 @@ describe("DEFAULT_SETTINGS", () => {
     expect(DEFAULT_SETTINGS.behavior.autoReload).toBe(true);
     expect(DEFAULT_SETTINGS.behavior.reopenLastFile).toBe(false);
     expect(DEFAULT_SETTINGS.behavior.confirmExternalLinks).toBe(true);
+    expect(DEFAULT_SETTINGS.behavior.checkForUpdates).toBe(false);
     expect(DEFAULT_SETTINGS.behavior.recentFiles).toEqual([]);
   });
 
@@ -58,9 +60,10 @@ describe("DEFAULT_SETTINGS", () => {
 });
 
 describe("nextEditorMode", () => {
-  it("cycles view → edit → split → view", () => {
+  it("cycles view → edit → cards → split → view", () => {
     expect(nextEditorMode(EDITOR_MODE.view)).toBe(EDITOR_MODE.edit);
-    expect(nextEditorMode(EDITOR_MODE.edit)).toBe(EDITOR_MODE.split);
+    expect(nextEditorMode(EDITOR_MODE.edit)).toBe(EDITOR_MODE.cards);
+    expect(nextEditorMode(EDITOR_MODE.cards)).toBe(EDITOR_MODE.split);
     expect(nextEditorMode(EDITOR_MODE.split)).toBe(EDITOR_MODE.view);
   });
 
@@ -68,11 +71,26 @@ describe("nextEditorMode", () => {
     expect(nextEditorMode(undefined)).toBe(EDITOR_MODE.edit);
   });
 
-  it("skips split on a narrow viewport (view → edit → view)", () => {
+  it("skips split but keeps cards on a narrow viewport", () => {
     expect(nextEditorMode(EDITOR_MODE.view, false)).toBe(EDITOR_MODE.edit);
-    expect(nextEditorMode(EDITOR_MODE.edit, false)).toBe(EDITOR_MODE.view);
+    expect(nextEditorMode(EDITOR_MODE.edit, false)).toBe(EDITOR_MODE.cards);
+    expect(nextEditorMode(EDITOR_MODE.cards, false)).toBe(EDITOR_MODE.view);
     // A tab already stored as split advances to edit, not back into split.
     expect(nextEditorMode(EDITOR_MODE.split, false)).toBe(EDITOR_MODE.edit);
+  });
+
+  it("skips cards for non-Markdown documents", () => {
+    expect(nextEditorMode(EDITOR_MODE.edit, true, false)).toBe(EDITOR_MODE.split);
+    expect(nextEditorMode(EDITOR_MODE.edit, false, false)).toBe(EDITOR_MODE.view);
+  });
+});
+
+describe("isTextEditorMode", () => {
+  it("keeps derived cards mode out of the full-document edit pipeline", () => {
+    expect(isTextEditorMode(EDITOR_MODE.edit)).toBe(true);
+    expect(isTextEditorMode(EDITOR_MODE.split)).toBe(true);
+    expect(isTextEditorMode(EDITOR_MODE.view)).toBe(false);
+    expect(isTextEditorMode(EDITOR_MODE.cards)).toBe(false);
   });
 });
 

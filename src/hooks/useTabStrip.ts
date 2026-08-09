@@ -1,5 +1,5 @@
 import { useCallback, useRef, useState } from "react";
-import { EDITOR_MODE, type EditorMode } from "@/lib/settings";
+import { type EditorMode, isTextEditorMode } from "@/lib/settings";
 import {
   activeFileOf,
   type FileState,
@@ -85,7 +85,7 @@ export function useTabStrip() {
     (id: string, mode: EditorMode) => {
       updateActiveFile(id, (f) => {
         // When entering edit mode, initialize editContent from content
-        if (mode !== EDITOR_MODE.view && f.editContent === null) {
+        if (isTextEditorMode(mode) && f.editContent === null) {
           return { ...f, mode, editContent: f.content };
         }
         return { ...f, mode };

@@ -115,6 +115,19 @@ describe("useMenuHandlers", () => {
     expect(value.setTabMode).toHaveBeenCalledWith("tab-1", EDITOR_MODE.edit);
   });
 
+  it("does not cycle a non-Markdown document into Cards", () => {
+    const { handlers, value } = renderHandlers({
+      activeTabId: "tab-1",
+      activeFile: {
+        mode: EDITOR_MODE.edit,
+        path: "D:\\notes\\plain.txt",
+      } as TabsContextValue["activeFile"],
+    });
+
+    handlers.toggleEdit();
+    expect(value.setTabMode).toHaveBeenCalledWith("tab-1", EDITOR_MODE.split);
+  });
+
   it("toggles autosave to the opposite of the stored setting", () => {
     const { handlers } = renderHandlers();
     handlers.toggleAutoSave();

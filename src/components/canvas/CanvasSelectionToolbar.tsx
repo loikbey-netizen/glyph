@@ -4,18 +4,11 @@ import { canvasColorToCss, PRESET_COLORS } from "@/lib/canvas/color";
 
 interface CanvasSelectionToolbarProps {
   count: number;
-  onSetColor: (color: string | undefined) => void;
-  onDelete: () => void;
+  onSetColor?: (color: string | undefined) => void;
+  onDelete?: () => void;
 }
 
-// Floating actions for the current selection: recolour (preset swatches, a
-// custom colour picker, and a "clear" chip) and delete. Shown only while one
-// or more nodes are selected.
-export function CanvasSelectionToolbar({
-  count,
-  onSetColor,
-  onDelete,
-}: CanvasSelectionToolbarProps) {
+function CanvasColorControls({ onSetColor }: { onSetColor: (color: string | undefined) => void }) {
   const { t } = useTranslation("common");
   const customRef = useRef<HTMLInputElement | null>(null);
   const onSetColorRef = useRef(onSetColor);
@@ -27,7 +20,7 @@ export function CanvasSelectionToolbar({
   // history with an entry per tick.
   useEffect(() => {
     const input = customRef.current;
-    /* v8 ignore start -- defensive: the input is always rendered with the toolbar */
+    /* v8 ignore start -- defensive: the input is always rendered with the controls */
     if (!input) return;
     /* v8 ignore stop */
     const commit = () => onSetColorRef.current(input.value);
@@ -36,11 +29,7 @@ export function CanvasSelectionToolbar({
   }, []);
 
   return (
-    <div
-      className="glyph-canvas-selection-toolbar"
-      role="toolbar"
-      aria-label={t("canvasSelection.toolbar")}
-    >
+    <>
       <button
         type="button"
         className="glyph-canvas-swatch"
@@ -66,9 +55,32 @@ export function CanvasSelectionToolbar({
         aria-label={t("canvasSelection.customColor")}
         defaultValue="#a882ff"
       />
-      <button type="button" className="glyph-canvas-delete" onClick={onDelete}>
-        {count > 1 ? t("canvasSelection.deleteCount", { count }) : t("canvasSelection.delete")}
-      </button>
+    </>
+  );
+}
+
+// Floating actions for the current selection: recolour (preset swatches, a
+// custom colour picker, and a "clear" chip) and delete. Shown only while one
+// or more nodes are selected.
+export function CanvasSelectionToolbar({
+  count,
+  onSetColor,
+  onDelete,
+}: CanvasSelectionToolbarProps) {
+  const { t } = useTranslation("common");
+
+  return (
+    <div
+      className="glyph-canvas-selection-toolbar"
+      role="toolbar"
+      aria-label={t("canvasSelection.toolbar")}
+    >
+      {onSetColor && <CanvasColorControls onSetColor={onSetColor} />}
+      {onDelete && (
+        <button type="button" className="glyph-canvas-delete" onClick={onDelete}>
+          {count > 1 ? t("canvasSelection.deleteCount", { count }) : t("canvasSelection.delete")}
+        </button>
+      )}
     </div>
   );
 }

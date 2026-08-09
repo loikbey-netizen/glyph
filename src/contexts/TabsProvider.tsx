@@ -8,7 +8,7 @@ import { useWorkspaceNotice } from "@/hooks/useWorkspaceNotice";
 import { filterBacklinks } from "@/lib/backlinks";
 import { displayContentFor, tocContentFor } from "@/lib/displayContent";
 import { buildMetadataIndex } from "@/lib/metadata";
-import { EDITOR_MODE } from "@/lib/settings";
+import { EDITOR_MODE, isTextEditorMode } from "@/lib/settings";
 import { TabsContext, type TabsContextValue } from "./TabsContext";
 
 export function TabsProvider({ children }: { children: ReactNode }) {
@@ -34,11 +34,10 @@ export function TabsProvider({ children }: { children: ReactNode }) {
   // View mode shows saved content; edit/split shows the in-memory editContent
   // so previews reflect typing. editContent is seeded when entering edit mode,
   // so the `?? content` fallback is defensive only.
-  const liveContent =
-    activeMode !== EDITOR_MODE.view
-      ? /* c8 ignore next */
-        (tabs.activeFile?.editContent ?? content)
-      : content;
+  const liveContent = isTextEditorMode(activeMode)
+    ? /* c8 ignore next */
+      (tabs.activeFile?.editContent ?? content)
+    : content;
   // Per-file-type derivation (markdown passthrough, notebook suppression,
   // canvas prose projection) lives in lib/displayContent.
   const displayContent = useMemo(

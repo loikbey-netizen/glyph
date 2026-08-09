@@ -51,6 +51,14 @@ vi.mock("./graph/lazyGraph", () => ({
   ),
 }));
 
+vi.mock("./cards/MarkdownCardsPane", () => ({
+  MarkdownCardsPane: ({ onChange }: { onChange: (content: string) => void }) => (
+    <button type="button" data-testid="markdown-cards" onClick={() => onChange("# CARDS")}>
+      cards
+    </button>
+  ),
+}));
+
 vi.mock("./markdown/MarkdownViewer", () => ({
   MarkdownViewer: ({ filePath }: { filePath?: string }) => (
     <div data-testid="markdown-viewer">{filePath}</div>
@@ -261,6 +269,20 @@ describe("TabContent", () => {
     const tab = makeFileTab("split");
     renderTabContent({ activeTab: tab, activeTabId: tab.id, activeFile: tab.file });
     expect(screen.getByTestId("lazy-split")).toBeInTheDocument();
+  });
+
+  it("renders Cards mode and commits targeted Markdown changes", () => {
+    const tab = makeFileTab("cards");
+    const commitEdit = vi.fn();
+    renderTabContent({
+      activeTab: tab,
+      activeTabId: tab.id,
+      activeFile: tab.file,
+      commitEdit,
+    });
+    screen.getByTestId("markdown-cards").click();
+    expect(commitEdit).toHaveBeenCalledWith(tab.id, "# CARDS");
+    expect(screen.queryByTestId("lazy-editor")).toBeNull();
   });
 
   it("routes wikilink clicks through openFile", () => {

@@ -18,7 +18,10 @@ export function parseHeadings(md: string): MarkdownHeading[] {
   let fence: string | null = null;
 
   for (let i = 0; i < lines.length; i++) {
-    const fenceMatch = lines[i].match(FENCE);
+    // split("\n") leaves the CR in CRLF documents; strip it for syntax
+    // recognition while retaining line indexes into the untouched source.
+    const line = lines[i].endsWith("\r") ? lines[i].slice(0, -1) : lines[i];
+    const fenceMatch = line.match(FENCE);
     if (fenceMatch) {
       // ponytail: match on fence char only, not run length; nested longer
       // fences (```` wrapping ```) close early. Track length if that ever bites.
@@ -29,7 +32,7 @@ export function parseHeadings(md: string): MarkdownHeading[] {
     }
     if (fence !== null) continue;
 
-    const m = ATX.exec(lines[i]);
+    const m = ATX.exec(line);
     if (!m) continue;
     // Drop a trailing run of `#` (closed ATX headings) and surrounding space.
     const text = m[2].replace(/\s+#+\s*$/, "").trim();

@@ -1,7 +1,7 @@
 {
   "$schema": "https://raw.githubusercontent.com/nicedoc/tauri/v2/crates/tauri/schema.json",
-  "productName": "Glyph",
-  "identifier": "com.hamidfzm.glyph",
+  "productName": "Source Mindmap",
+  "identifier": "net.loikbey.source-mindmap",
   "build": {
     "frontendDist": "../dist",
     "devUrl": "http://localhost:1420",
@@ -11,7 +11,7 @@
   "app": {
     "windows": [
       {
-        "title": "Glyph",
+        "title": "Source Mindmap",
         "width": 960,
         "height": 720,
         "minWidth": 600,

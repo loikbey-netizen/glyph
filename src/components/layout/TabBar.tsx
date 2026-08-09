@@ -1,5 +1,6 @@
 import type { TFunction } from "i18next";
 import { useTranslation } from "react-i18next";
+import { CardsModeIcon } from "@/components/icons/CardsModeIcon";
 import { EditModeIcon } from "@/components/icons/EditModeIcon";
 import { GraphIcon } from "@/components/icons/GraphIcon";
 import { OpenIcon } from "@/components/icons/OpenIcon";
@@ -18,6 +19,7 @@ import { useTabDragReorder } from "@/hooks/useTabDragReorder";
 import { isCanvasFile } from "@/lib/canvasExtensions";
 import { isImageFile } from "@/lib/imageExtensions";
 import { isLooseFilePath } from "@/lib/looseFile";
+import { isMarkdownFile } from "@/lib/markdownExtensions";
 import { displayName } from "@/lib/paths";
 import { isMobile } from "@/lib/platform";
 import { EDITOR_MODE, effectiveEditorMode } from "@/lib/settings";
@@ -81,6 +83,7 @@ export function TabBar({ onToggleAIChat, onOpenPalette }: TabBarProps) {
   // Split is offered only for markdown (canvas is its own editor) and only when
   // the viewport is wide enough for two panes; phones get view + edit only.
   const showSplit = activeFile !== null && !isCanvasFile(activeFile.path) && canSplit;
+  const showCards = activeFile !== null && isMarkdownFile(activeFile.path);
   // The rendered mode: a tab stored as split shows as view on a narrow screen,
   // so the view button, not the (hidden) split button, reads as active.
   const shownMode = activeFile ? effectiveEditorMode(activeFile.mode, canSplit) : undefined;
@@ -174,6 +177,16 @@ export function TabBar({ onToggleAIChat, onOpenPalette }: TabBarProps) {
           >
             <EditModeIcon />
           </ActionBarButton>
+          {showCards && (
+            <ActionBarButton
+              onClick={() => onModeChange(activeTab.id, EDITOR_MODE.cards)}
+              label={t("tabBar.cardsMode")}
+              title={t("tabBar.cards")}
+              active={shownMode === EDITOR_MODE.cards}
+            >
+              <CardsModeIcon />
+            </ActionBarButton>
+          )}
           {showSplit && (
             <ActionBarButton
               onClick={() => onModeChange(activeTab.id, EDITOR_MODE.split)}

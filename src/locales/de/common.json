@@ -61,6 +61,8 @@
     "edit": "Bearbeiten",
     "splitMode": "Geteilter Modus",
     "split": "Geteilt",
+    "cardsMode": "Kartenmodus",
+    "cards": "Karten",
     "aiChat": "KI-Chat",
     "commandPalette": "Befehlspalette",
     "openGraph": "Graph öffnen",
@@ -71,6 +73,12 @@
       "closeToLeft": "Tabs links schließen",
       "closeAll": "Alle schließen"
     }
+  },
+  "cards": {
+    "empty": "Keine Überschriften für Karten vorhanden.",
+    "editError": "Die Karte konnte nicht gespeichert werden.",
+    "concurrentEditError": "Es kann nur eine Karte gleichzeitig bearbeitet werden.",
+    "metadataWarning": "Gespeicherte Kartenpositionen konnten nicht geladen werden. Das Standardlayout wird verwendet."
   },
   "updateBanner": {
     "available": "<strong>Glyph {{version}}</strong> ist verfügbar",

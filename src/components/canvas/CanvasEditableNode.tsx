@@ -26,6 +26,9 @@ interface CanvasEditableNodeProps {
   onEditCancel: () => void;
   onContextMenu: (e: ReactMouseEvent) => void;
   onTaskToggle: (line: number) => void;
+  allowConnect?: boolean;
+  allowResize?: boolean;
+  allowEdit?: boolean;
 }
 
 // A node in edit mode: the read-only content plus selection chrome, a
@@ -36,7 +39,7 @@ interface CanvasEditableNodeProps {
 export function CanvasEditableNode(props: CanvasEditableNodeProps) {
   const { t } = useTranslation("common");
   const { node, canvasPath, selected, editing } = props;
-  const editable = node.type !== "file";
+  const editable = node.type !== "file" && props.allowEdit !== false;
   const textRef = useRef<HTMLTextAreaElement | null>(null);
   // Latest typed value, tracked outside the DOM. Editing can end without a
   // blur event (clicking the stage clears editingId and React unmounts the
@@ -151,6 +154,8 @@ export function CanvasEditableNode(props: CanvasEditableNodeProps) {
         <CanvasNodeChrome
           onConnectStart={props.onConnectStart}
           onResizeStart={props.onResizeStart}
+          allowConnect={props.allowConnect}
+          allowResize={props.allowResize}
         />
       )}
     </div>

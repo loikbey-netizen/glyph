@@ -61,6 +61,8 @@
     "edit": "ویرایش",
     "splitMode": "حالت تقسیم",
     "split": "تقسیم",
+    "cardsMode": "حالت کارت‌ها",
+    "cards": "کارت‌ها",
     "aiChat": "گفتگو با هوش مصنوعی",
     "commandPalette": "پالت فرمان",
     "openGraph": "باز کردن گراف",
@@ -71,6 +73,12 @@
       "closeToLeft": "بستن زبانه‌های قبلی",
       "closeAll": "بستن همه"
     }
+  },
+  "cards": {
+    "empty": "عنوانی برای نمایش به صورت کارت وجود ندارد.",
+    "editError": "کارت ذخیره نشد.",
+    "concurrentEditError": "هر بار فقط یک کارت قابل ویرایش است.",
+    "metadataWarning": "موقعیت‌های ذخیره‌شدهٔ کارت‌ها بارگذاری نشد. چیدمان پیش‌فرض استفاده می‌شود."
   },
   "updateBanner": {
     "available": "<strong>Glyph {{version}}</strong> در دسترس است",

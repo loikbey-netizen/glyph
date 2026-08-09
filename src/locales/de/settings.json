@@ -130,17 +130,17 @@
     }
   },
   "updates": {
-    "title": "Updates",
+    "title": "Glyph-Upstream-Updates",
     "check": {
       "label": "Nach Updates suchen",
-      "description": "Beim Start nach einer neueren Version suchen und ein Banner anzeigen, wenn eine verfügbar ist. Es wird nur die installierte Version verglichen; es werden keine Dateien oder persönlichen Daten gesendet."
+      "description": "Die Prüfung erfolgt nur manuell. Eine Glyph-Version wird geprüft und getestet, bevor sie in Source Mindmap integriert wird; diese Schaltfläche installiert nichts."
     },
     "checking": "Wird geprüft…",
     "checkNow": "Jetzt prüfen",
-    "current": "Du verwendest die neueste Version.",
+    "current": "Source Mindmap basiert auf der neuesten Glyph-Version.",
     "error": "Suche nach Updates fehlgeschlagen. Versuche es später erneut.",
-    "available": "Version {{version}} ist verfügbar.",
-    "download": "Herunterladen"
+    "available": "Glyph {{version}} ist zur manuellen Prüfung verfügbar.",
+    "download": "Release ansehen"
   },
   "editor": {
     "title": "Editor",

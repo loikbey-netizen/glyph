@@ -27,4 +27,8 @@ describe("parseHeadings", () => {
   it("strips trailing hashes from closed ATX headings", () => {
     expect(parseHeadings("# Title #").map((h) => h.text)).toEqual(["Title"]);
   });
+
+  it("recognizes headings in CRLF documents", () => {
+    expect(parseHeadings("# One\r\nbody\r\n## Two\r\n").map((h) => h.text)).toEqual(["One", "Two"]);
+  });
 });

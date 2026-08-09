@@ -39,4 +39,10 @@ describe("CanvasSelectionToolbar", () => {
     render(<CanvasSelectionToolbar count={2} onSetColor={vi.fn()} onDelete={vi.fn()} />);
     expect(screen.getByText("Delete (2)")).toBeInTheDocument();
   });
+
+  it("hides actions whose capability handler is absent", () => {
+    render(<CanvasSelectionToolbar count={1} />);
+    expect(screen.queryByText("Delete")).not.toBeInTheDocument();
+    expect(screen.queryByLabelText("Custom colour")).not.toBeInTheDocument();
+  });
 });

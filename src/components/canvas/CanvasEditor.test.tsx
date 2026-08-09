@@ -49,6 +49,18 @@ describe("CanvasEditor board operations", () => {
     expect(lastData(onChange).nodes).toHaveLength(0);
   });
 
+  it("keeps nodes immutable when delete capability is disabled", () => {
+    const onChange = vi.fn();
+    const { container } = render(
+      <CanvasEditor content={oneText} onChange={onChange} capabilities={{ delete: false }} />,
+    );
+    const node = nodesOf(container)[0];
+    fireEvent.pointerDown(node, { clientX: 0, clientY: 0, button: 0 });
+    fireEvent.pointerUp(stageOf(container), { clientX: 0, clientY: 0 });
+    fireEvent.keyDown(document.body, { key: "Delete" });
+    expect(onChange).not.toHaveBeenCalled();
+  });
+
   it("shift-clicks to select multiple nodes, then deletes them together", () => {
     const onChange = vi.fn();
     const { container } = render(<CanvasEditor content={twoNodes} onChange={onChange} />);
@@ -98,12 +110,11 @@ describe("CanvasEditor board operations", () => {
     expect(lastData(onChange).edges).toHaveLength(0);
   });
 
-  it("does not recolour when only an edge is selected", () => {
+  it("does not offer recolouring when only an edge is selected", () => {
     const onChange = vi.fn();
     const { container } = render(<CanvasEditor content={withEdge} onChange={onChange} />);
     fireEvent.pointerDown(container.querySelector(".glyph-canvas-edge-hit") as Element);
-    // Toolbar is shown for the selected edge; clicking a swatch is a no-op.
-    fireEvent.click(screen.getByLabelText("Colour 1"));
+    expect(screen.queryByLabelText("Colour 1")).not.toBeInTheDocument();
     expect(onChange).not.toHaveBeenCalled();
   });
 
@@ -140,6 +151,20 @@ describe("CanvasEditor board operations", () => {
     fireEvent.click(screen.getByRole("checkbox"));
     const data = lastData(onChange);
     expect(data.nodes[0]).toMatchObject({ id: "a", text: "- [x] buy milk" });
+  });
+
+  it("keeps task-list text immutable when text editing is disabled", () => {
+    const tasks = JSON.stringify({
+      nodes: [
+        { id: "a", type: "text", x: 0, y: 0, width: 200, height: 80, text: "- [ ] buy milk" },
+      ],
+      edges: [],
+    });
+    const onChange = vi.fn();
+    render(<CanvasEditor content={tasks} onChange={onChange} capabilities={{ editText: false }} />);
+
+    fireEvent.click(screen.getByRole("checkbox"));
+    expect(onChange).not.toHaveBeenCalled();
   });
 
   it("generates an id when crypto.randomUUID is unavailable", () => {

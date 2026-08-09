@@ -1,7 +1,7 @@
 import { invoke } from "@tauri-apps/api/core";
 import { type RefObject, useCallback, useRef } from "react";
 import { emptyHistory, popRedo, popUndo, pushEntry, type TabHistory } from "@/lib/editHistory";
-import { EDITOR_MODE } from "@/lib/settings";
+import { isTextEditorMode } from "@/lib/settings";
 import { activeFileOf, type FileState, type TabsState } from "@/lib/tabs";
 import { toggleTaskAtLine } from "@/lib/taskList";
 
@@ -42,7 +42,7 @@ export function useDocumentEdits({
       if (!file) return false;
       /* v8 ignore stop */
 
-      if (file.mode !== EDITOR_MODE.view) {
+      if (isTextEditorMode(file.mode)) {
         updateActiveFile(id, (f) => ({
           ...f,
           editContent: next,
@@ -81,7 +81,7 @@ export function useDocumentEdits({
       const file = activeFileOf(tab);
       if (!file?.content) return;
 
-      const isEditing = file.mode !== EDITOR_MODE.view;
+      const isEditing = isTextEditorMode(file.mode);
       const source = isEditing ? (file.editContent ?? file.content) : file.content;
       const next = toggleTaskAtLine(source, line);
       if (next === source) return;
@@ -107,7 +107,7 @@ export function useDocumentEdits({
       /* v8 ignore start -- defensive: every open file has content loaded, so the null fallback is unreachable */
       const disk = file.content ?? "";
       /* v8 ignore stop */
-      const before = file.mode !== EDITOR_MODE.view ? (file.editContent ?? disk) : disk;
+      const before = isTextEditorMode(file.mode) ? (file.editContent ?? disk) : disk;
       if (next === before) return;
       const applied = await applyProgrammaticEdit(id, next);
       if (applied) {

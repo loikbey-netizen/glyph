@@ -1,9 +1,7 @@
 import { openUrl } from "@tauri-apps/plugin-opener";
 import { useCallback, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useSettings } from "@/hooks/useSettings";
 import { checkForUpdate } from "@/lib/updateCheck";
-import { Toggle } from "./Toggle";
 
 // Outcome of a manual "Check Now": idle before the first click, then the
 // resolved state of the most recent check.
@@ -16,8 +14,6 @@ type ManualStatus =
 
 export function UpdatesSection() {
   const { t } = useTranslation("settings");
-  const { settings, updateSettings } = useSettings();
-  const { behavior } = settings;
   const [status, setStatus] = useState<ManualStatus>({ kind: "idle" });
 
   const handleCheck = useCallback(async () => {
@@ -35,16 +31,7 @@ export function UpdatesSection() {
   return (
     <div className="settings-section">
       <div className="settings-section-title">{t("updates.title")}</div>
-      <div className="settings-row">
-        <div>
-          <span className="settings-label">{t("updates.check.label")}</span>
-          <div className="settings-description">{t("updates.check.description")}</div>
-        </div>
-        <Toggle
-          checked={behavior.checkForUpdates}
-          onChange={(v) => updateSettings("behavior.checkForUpdates", v)}
-        />
-      </div>
+      <div className="settings-description">{t("updates.check.description")}</div>
 
       <button
         type="button"

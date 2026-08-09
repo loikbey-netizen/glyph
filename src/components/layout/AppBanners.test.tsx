@@ -1,19 +1,16 @@
 import { render, screen } from "@testing-library/react";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { TabsContext } from "@/contexts/TabsContext";
 import { useDefaultAppPrompt } from "@/hooks/useDefaultAppPrompt";
 import { useErrorReportingPrompt } from "@/hooks/useErrorReportingPrompt";
-import { useUpdateCheck } from "@/hooks/useUpdateCheck";
 import { tabsContextValue } from "@/test/fixtures/tabsContext";
 import { AppBanners } from "./AppBanners";
 
-vi.mock("@/hooks/useUpdateCheck", () => ({ useUpdateCheck: vi.fn() }));
 vi.mock("@/hooks/useDefaultAppPrompt", () => ({ useDefaultAppPrompt: vi.fn() }));
 vi.mock("@/hooks/useErrorReportingPrompt", () => ({ useErrorReportingPrompt: vi.fn() }));
 
 // The children are covered by their own suites; here only the mounting
 // decision matters, so each is a marker.
-vi.mock("./UpdateBanner", () => ({ UpdateBanner: () => <div>update banner</div> }));
 vi.mock("./DefaultAppBanner", () => ({ DefaultAppBanner: () => <div>default app banner</div> }));
 vi.mock("./ErrorReportingBanner", () => ({
   ErrorReportingBanner: () => <div>error reporting banner</div>,
@@ -50,16 +47,11 @@ function renderBanners() {
   );
 }
 
-beforeEach(() => {
-  vi.mocked(useUpdateCheck).mockReturnValue({ update: null, dismiss: vi.fn() });
-});
-
 describe("AppBanners", () => {
   it("shows only the always-mounted banners while neither prompt is due", () => {
     setPrompts({ defaultApp: false, errorReporting: false });
     renderBanners();
 
-    expect(screen.getByText("update banner")).toBeInTheDocument();
     expect(screen.getByText("workspace notice banner")).toBeInTheDocument();
     expect(screen.queryByText("default app banner")).not.toBeInTheDocument();
     expect(screen.queryByText("error reporting banner")).not.toBeInTheDocument();
